@@ -1,0 +1,66 @@
+{% assign gifts = "freezer-bag|free-bacon" | split: "|" %}
+
+
+{% assign product = all_products['freezer-bag'] %}
+{% assign product2 = all_products['free-bacon'] %}
+
+{% if cart.item_count > 0 and product.variants.first.available == true and product2.variants.first.available == true %}
+  {% assign variant_id = product.variants.first.id %}
+  {% assign variant_id2 = product2.variants.first.id %}
+
+  <script>
+    (function($) {
+      var cartItems = {{ cart.items | json }},
+          add_gifts = false,
+          cartUpdates = {};
+
+      for ( var i = 0; i < cartItems.length; i++ ) {
+        if ( cartItems[i].handle === 'membership' ) {
+          add_gifts = true;
+          break;
+        }
+      }
+
+      if ( add_gifts ) { 
+        cartUpdates = {
+          {{ variant_id }}: 1,
+          {{ variant_id2 }}: 1 
+        };
+
+        for ( var i = 0; i < cartItems.length; i++ ) {
+          if ( cartItems[i].id === {{ variant_id }} ) {
+            delete cartUpdates[{{ variant_id }}];
+          } else if ( cartItems[i].id === {{ variant_id2 }} ) {
+            delete cartUpdates[{{ variant_id2 }}];
+          }
+        }
+      } else { 
+        for ( var i = 0; i < cartItems.length; i++ ) {
+          if ( cartItems[i].id === {{ variant_id }} ) {
+            cartUpdates[{{ variant_id }}] = 0;
+          } else if ( cartItems[i].id === {{ variant_id2 }} ) {
+            cartUpdates[{{ variant_id2 }}] = 0;
+          }
+        }
+      }
+
+      if ( Object.keys(cartUpdates).length === 0 && cartUpdates.constructor === Object ) { 
+        return;
+      }
+
+      var params = {
+        type: 'POST',
+        url: '/cart/update.js',
+        data: { 
+          updates: cartUpdates 
+        },
+        dataType: 'json',
+        success: function(stuff) { 
+          window.location.href = '/cart';
+        }
+      };
+
+      $.ajax(params);
+    })(jQuery);
+  </script>
+{% endif %}
