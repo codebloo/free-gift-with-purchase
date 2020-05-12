@@ -1,3 +1,6 @@
+SHOPIFY -- Add 2 free gifts with purchase of a specific, qualifying item. Remove the gifts if the qualifying item is deleted from the cart.
+
+
 # free-gift-with-purchase
 Add multiple free gifts to the cart automatically when purchasing a qualifying item
 TO USE
